@@ -1,5 +1,7 @@
 library;
 
+use std::u128::U128;
+
 /// The 64-bit signed integer type.
 ///
 /// # Additional Information
@@ -194,7 +196,32 @@ impl I64 {
     pub fn is_positive(self) -> bool {
         self.underlying > INDENT_I64
     }
+}
 
+impl From<u64> for I64 {
+    /// Converts a `u64` to a `I64`.
+    ///
+    /// # Returns
+    ///
+    /// * [I64] - The `I64` representation of the `u64` value.
+    ///
+    /// # Examples
+    ///
+    /// ```sway
+    /// use compolabs_sway_libs::signed_integers::i64::I64;
+    ///
+    /// fn foo() {
+    ///     assert(I64::from(1u64).underlying() == 0x8000000000000001);
+    /// }
+    /// ```
+    fn from(val: u64) -> Self {
+        Self {
+            underlying: INDENT_I64 + val,
+        }
+    }
+}
+
+impl I64 {
     /// The absolute of given i64.
     ///
     /// # Returns
@@ -222,7 +249,7 @@ impl I64 {
     ///
     /// # Returns
     ///
-    /// * [u64] - The signed reversed `I64` representing the `I64`.
+    /// * [I64] - The signed reversed `I64` representing the `I64`.
     ///
     /// # Examples
     ///
@@ -243,7 +270,7 @@ impl I64 {
     ///
     /// # Returns
     ///
-    /// * [u64] - The signed reversed `I64` representing the `I64`.
+    /// * [I64] - The signed reversed `I64` representing the `I64`.
     ///
     /// # Examples
     ///
@@ -261,14 +288,12 @@ impl I64 {
             _ => self,
         }
     }
-}
 
-impl From<u64> for I64 {
-    /// Converts a `u64` to a `I64`.
+    /// Returns `I64` of muliplicaion and division using 128-bit math.
     ///
     /// # Returns
     ///
-    /// * [I64] - The `I64` representation of the `u64` value.
+    /// * [I64] - The result of mul and div.
     ///
     /// # Examples
     ///
@@ -276,13 +301,14 @@ impl From<u64> for I64 {
     /// use compolabs_sway_libs::signed_integers::i64::I64;
     ///
     /// fn foo() {
-    ///     assert(I64::from(1u64).underlying() == 0x8000000000000001);
+    ///     assert(I64::from(6).mul_div(I64::from(3), I64::from(2)) == I64::from(9));
     /// }
     /// ```
-    fn from(val: u64) -> Self {
-        Self {
-            underlying: INDENT_I64 + val,
-        }
+    pub fn mul_div(self, mul: Self, div: Self) -> I64 {
+        let res = U128::from((0, self.abs())) * U128::from((0, mul.abs()));
+        let res = (res / U128::from((0, div.abs()))).as_u64().unwrap();
+        let sign = (self.is_positive() == mul.is_positive()) == div.is_positive();
+        I64::from(res).reverse_sign_if(!sign)
     }
 }
 
@@ -625,5 +651,35 @@ fn test_i64_div() {
         (I64::from(6u64) / I64::from(2u64)
                 .reverse_sign())
             .underlying() == 0x7FFFFFFFFFFFFFFD,
+    );
+}
+
+#[test()]
+fn test_i64_mul_div() {
+    assert(I64::from(6).mul_div(I64::from(3), I64::from(2)) == I64::from(9));
+    assert(
+        I64::from(6)
+            .reverse_sign()
+            .mul_div(I64::from(3), I64::from(2)) == I64::from(9)
+            .reverse_sign(),
+    );
+    assert(
+        I64::from(6)
+            .mul_div(I64::from(3).reverse_sign(), I64::from(2)) == I64::from(9)
+            .reverse_sign(),
+    );
+    assert(
+        I64::from(6)
+            .mul_div(I64::from(3), I64::from(2).reverse_sign()) == I64::from(9)
+            .reverse_sign(),
+    );
+    assert(
+        I64::from(6)
+            .mul_div(I64::from(3).reverse_sign(), I64::from(2).reverse_sign()) == I64::from(9),
+    );
+    assert(
+        I64::from(6)
+            .reverse_sign()
+            .mul_div(I64::from(3), I64::from(2).reverse_sign()) == I64::from(9),
     );
 }
