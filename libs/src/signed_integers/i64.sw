@@ -289,7 +289,7 @@ impl I64 {
         }
     }
 
-    /// Returns `I64` of muliplicaion and division using 128-bit math.
+    /// Returns `I64` of muliplicaion and division of I64 using 128-bit math.
     ///
     /// # Returns
     ///
@@ -309,6 +309,27 @@ impl I64 {
         let res = (res / U128::from((0, div.abs()))).as_u64().unwrap();
         let sign = (self.is_positive() == mul.is_positive()) == div.is_positive();
         I64::from(res).reverse_sign_if(!sign)
+    }
+
+    /// Returns `I64` of muliplicaion and division of u64 using 128-bit math.
+    ///
+    /// # Returns
+    ///
+    /// * [I64] - The result of mul and div.
+    ///
+    /// # Examples
+    ///
+    /// ```sway
+    /// use compolabs_sway_libs::signed_integers::i64::I64;
+    ///
+    /// fn foo() {
+    ///     assert(I64::from(6).mul_div(3, 2) == I64::from(9));
+    /// }
+    /// ```
+    pub fn mul_div_u64(self, mul: u64, div: u64) -> I64 {
+        let res = U128::from((0, self.abs())) * U128::from((0, mul));
+        let res = (res / U128::from((0, div))).as_u64().unwrap();
+        I64::from(res).reverse_sign_if(self.is_negative())
     }
 }
 
@@ -682,4 +703,10 @@ fn test_i64_mul_div() {
             .reverse_sign()
             .mul_div(I64::from(3), I64::from(2).reverse_sign()) == I64::from(9),
     );
+}
+
+#[test()]
+fn test_i64_mul_div_u64() {
+    assert(I64::from(6).mul_div(I64::from(3), I64::from(2)) == I64::from(9));
+    assert(I64::from(6).reverse_sign().mul_div_u64(3, 2) == I64::from(9).reverse_sign());
 }
