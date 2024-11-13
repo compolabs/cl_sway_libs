@@ -21,7 +21,7 @@ impl I64 {
     ///
     /// # Returns
     ///
-    /// [u64] - The defined size of the `I64` type.
+    /// [u32] - The defined size of the `I64` type.
     ///
     /// # Examples
     ///
@@ -32,7 +32,7 @@ impl I64 {
     ///     assert(I64::bits() == 64);
     /// }
     /// ```
-    pub fn bits() -> u64 {
+    pub fn bits() -> u32 {
         64
     }
 
@@ -211,7 +211,7 @@ impl From<u64> for I64 {
     /// use compolabs_sway_libs::signed_integers::i64::I64;
     ///
     /// fn foo() {
-    ///     assert(I64::from(1u64).underlying() == 0x8000000000000001);
+    ///    assert(I64::from(1u64).underlying() == INDENT_I64 + 1);
     /// }
     /// ```
     fn from(val: u64) -> Self {
@@ -234,8 +234,8 @@ impl I64 {
     /// use compolabs_sway_libs::signed_integers::i64::I64;
     ///
     /// fn foo() {
-    ///     assert(I64::min().abs() == 0x8000000000000000);
-    ///     assert(I64::max().abs() == 0x7FFFFFFFFFFFFFFF);
+    ///     assert(I64::min().abs() == INDENT_I64);
+    ///     assert(I64::max().abs() == INDENT_I64 - 1);
     /// }
     /// ```
     pub fn abs(self) -> u64 {
@@ -347,6 +347,9 @@ impl core::ops::Eq for I64 {
     ///
     /// fn foo() {
     ///     assert(I64::from(1u64) == I64::from(1u64));
+    ///     assert(!(I64::from(2u64) == I64::from(1u64)));
+    ///     assert(I64::from(2u64) != I64::from(1u64));
+    ///     assert(!(I64::from(1u64) != I64::from(1u64)));
     /// }
     /// ```
     fn eq(self, other: Self) -> bool {
@@ -368,6 +371,7 @@ impl core::ops::Ord for I64 {
     ///
     /// fn foo() {
     ///     assert(I64::from(2u64) > I64::from(1u64));
+    ///     assert(!(I64::from(1u64) > I64::from(1u64)));
     /// }
     /// ```
     fn gt(self, other: Self) -> bool {
@@ -387,6 +391,7 @@ impl core::ops::Ord for I64 {
     ///
     /// fn foo() {
     ///     assert(I64::from(1u64) < I64::from(2u64));
+    ///     assert(!(I64::from(1u64) < I64::from(1u64)));
     /// }
     /// ```
     fn lt(self, other: Self) -> bool {
@@ -461,7 +466,7 @@ impl core::ops::Multiply for I64 {
     /// use compolabs_sway_libs::signed_integers::i64::I64;
     ///
     /// fn foo() {
-    ///     assert((I64::from(3u64) * I64::from(2u64)).underlying() == 0x8000000000000006);
+    ///     assert((I64::from(3u64) * I64::from(2u64)).underlying() == INDENT_I64 + 6);
     /// }
     /// }
     /// ```
@@ -483,7 +488,7 @@ impl core::ops::Divide for I64 {
     /// use compolabs_sway_libs::signed_integers::i64::I64;
     ///
     /// fn foo() {
-    ///     assert((I64::from(6u64) / I64::from(2u64)).underlying() == 0x8000000000000003);
+    ///     assert((I64::from(6u64) / I64::from(2u64)).underlying() == INDENT_I64 + 3);
     /// }
     /// }
     /// ```
@@ -534,13 +539,18 @@ fn test_i64_is_positive() {
 
 #[test()]
 fn test_i64_abs() {
-    assert(I64::min().abs() == 0x8000000000000000);
-    assert(I64::max().abs() == 0x7FFFFFFFFFFFFFFF);
+    assert(I64::min().abs() == INDENT_I64);
+    assert(I64::max().abs() == INDENT_I64 - 1);
 }
 
 #[test()]
 fn test_i64_reverse_sign() {
     assert(I64::max().reverse_sign().underlying() == 1);
+}
+
+#[test()]
+fn test_i64_from() {
+    assert(I64::from(1u64).underlying() == INDENT_I64 + 1);
 }
 
 #[test()]
@@ -550,32 +560,27 @@ fn test_i64_reverse_sign_if() {
 }
 
 #[test()]
-fn test_i64_from() {
-    assert(I64::from(1u64).underlying() == 0x8000000000000001);
-}
-
-#[test()]
 fn test_i64_eq() {
     assert(I64::from(1u64) == I64::from(1u64));
-    assert((I64::from(2u64) == I64::from(1u64)) == false);
+    assert(!(I64::from(2u64) == I64::from(1u64)));
 }
 
 #[test()]
 fn test_i64_ne() {
     assert(I64::from(2u64) != I64::from(1u64));
-    assert((I64::from(1u64) != I64::from(1u64)) == false);
+    assert(!(I64::from(1u64) != I64::from(1u64)));
 }
 
 #[test()]
 fn test_i64_gt() {
     assert(I64::from(2u64) > I64::from(1u64));
-    assert((I64::from(1u64) > I64::from(1u64)) == false);
+    assert(!(I64::from(1u64) > I64::from(1u64)));
 }
 
 #[test()]
 fn test_i64_lt() {
     assert(I64::from(1u64) < I64::from(2u64));
-    assert((I64::from(1u64) < I64::from(1u64)) == false);
+    assert(!(I64::from(1u64) < I64::from(1u64)));
 }
 
 #[test()]
@@ -592,86 +597,86 @@ fn test_i64_le() {
 
 #[test()]
 fn test_i64_add() {
-    assert((I64::from(1u64) + I64::from(2u64)).underlying() == 0x8000000000000003);
+    assert((I64::from(1u64) + I64::from(2u64)).underlying() == INDENT_I64 + 3);
     assert(
         (I64::from(1u64)
                 .reverse_sign() + I64::from(2u64))
-            .underlying() == 0x8000000000000001,
+            .underlying() == INDENT_I64 + 1,
     );
     assert(
         (I64::from(1u64)
                 .reverse_sign() + I64::from(2u64)
                 .reverse_sign())
-            .underlying() == 0x7FFFFFFFFFFFFFFD,
+            .underlying() == INDENT_I64 - 3,
     );
     assert(
         (I64::from(1u64) + I64::from(2u64)
                 .reverse_sign())
-            .underlying() == 0x7FFFFFFFFFFFFFFF,
+            .underlying() == INDENT_I64 - 1,
     );
 }
 
 #[test()]
 fn test_i64_sub() {
-    assert((I64::from(2u64) - I64::from(1u64)).underlying() == 0x8000000000000001);
-    assert((I64::from(1u64) - I64::from(2u64)).underlying() == 0x7FFFFFFFFFFFFFFF);
+    assert((I64::from(2u64) - I64::from(1u64)).underlying() == INDENT_I64 + 1);
+    assert((I64::from(1u64) - I64::from(2u64)).underlying() == INDENT_I64 - 1);
     assert(
         (I64::from(1u64)
                 .reverse_sign() - I64::from(2u64))
-            .underlying() == 0x7FFFFFFFFFFFFFFD,
+            .underlying() == INDENT_I64 - 3,
     );
     assert(
         (I64::from(1u64)
                 .reverse_sign() - I64::from(2u64)
                 .reverse_sign())
-            .underlying() == 0x8000000000000001,
+            .underlying() == INDENT_I64 + 1,
     );
     assert(
         (I64::from(1u64) - I64::from(2u64)
                 .reverse_sign())
-            .underlying() == 0x8000000000000003,
+            .underlying() == INDENT_I64 + 3,
     );
 }
 
 #[test()]
 fn test_i64_mul() {
-    assert((I64::from(3u64) * I64::from(2u64)).underlying() == 0x8000000000000006);
+    assert((I64::from(3u64) * I64::from(2u64)).underlying() == INDENT_I64 + 6);
     assert(
         (I64::from(3u64)
                 .reverse_sign() * I64::from(2u64))
-            .underlying() == 0x7FFFFFFFFFFFFFFA,
+            .underlying() == INDENT_I64 - 6,
     );
     assert(
         (I64::from(3u64)
                 .reverse_sign() * I64::from(2u64)
                 .reverse_sign())
-            .underlying() == 0x8000000000000006,
+            .underlying() == INDENT_I64 + 6,
     );
     assert(
         (I64::from(3u64) * I64::from(2u64)
                 .reverse_sign())
-            .underlying() == 0x7FFFFFFFFFFFFFFA,
+            .underlying() == INDENT_I64 - 6,
     );
 }
 
 #[test()]
 fn test_i64_div() {
-    assert((I64::from(6u64) / I64::from(2u64)).underlying() == 0x8000000000000003);
+    assert((I64::from(6u64) / I64::from(2u64)).underlying() == INDENT_I64 + 3);
     assert(
         (I64::from(6u64)
                 .reverse_sign() / I64::from(2u64))
-            .underlying() == 0x7FFFFFFFFFFFFFFD,
+            .underlying() == INDENT_I64 - 3,
     );
     assert(
         (I64::from(6u64)
                 .reverse_sign() / I64::from(2u64)
                 .reverse_sign())
-            .underlying() == 0x8000000000000003,
+            .underlying() == INDENT_I64 + 3,
     );
     assert(
         (I64::from(6u64) / I64::from(2u64)
                 .reverse_sign())
-            .underlying() == 0x7FFFFFFFFFFFFFFD,
+            .underlying() == INDENT_I64 - 3,
     );
 }
 
