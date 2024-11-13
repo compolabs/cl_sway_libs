@@ -1,6 +1,7 @@
 library;
 
 use std::u128::U128;
+use ::signed_integers::i64::I64;
 
 /// The 128-bit signed integer type.
 ///
@@ -240,6 +241,32 @@ impl From<u64> for I128 {
     fn from(val: u64) -> Self {
         Self {
             underlying: INDENT_I128 + val.into(),
+        }
+    }
+}
+
+impl From<I64> for I128 {
+    /// Converts a `I64` to a `I128`.
+    ///
+    /// # Returns
+    ///
+    /// * [I128] - The `I128` representation of the `u64` value.
+    ///
+    /// # Examples
+    ///
+    /// ```sway
+    /// use compolabs_sway_libs::signed_integers::I128::I128;
+    ///
+    /// fn foo() {
+    ///     assert(I128::from(I64::from(1u64)).underlying() == INDENT_I128 + 1u64.into());
+    /// }
+    /// ```
+    fn from(val: I64) -> Self {
+        Self {
+            underlying: match val.is_positive() {
+                true => INDENT_I128 + val.abs().into(),
+                _ => INDENT_I128 - val.abs().into(),
+            },
         }
     }
 }
@@ -524,6 +551,11 @@ fn test_i128_from_u128() {
 #[test()]
 fn test_i128_from_u64() {
     assert(I128::from(1u64).underlying() == INDENT_I128 + 1u64.into());
+}
+
+#[test()]
+fn test_i128_from_i64() {
+    assert(I128::from(I64::from(1u64)).underlying() == INDENT_I128 + 1u64.into());
 }
 
 #[test()]
