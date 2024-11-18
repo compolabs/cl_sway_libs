@@ -1,6 +1,16 @@
 [package]
 name = "compolabs-sway-libs"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["ComposabilityLabs"]
 edition = "2021"
 license = "Apache-2.0"
+description = "Composability Labs Sway / Rust Library"
+
+[dependencies]
+anyhow = "1.0.91"
+tokio = { version = "1.41.0", features = ["rt", "macros"] }
+
+[[test]]
+harness = true
+name = "integration_tests"
+path = "tests/harness.rs"
