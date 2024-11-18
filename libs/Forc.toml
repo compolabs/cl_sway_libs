@@ -2,4 +2,4 @@
 authors = ["ComposabilityLabs"]
 entry = "lib.sw"
 license = "Apache-2.0"
-name = "compolabs-sway-libs"
+name = "compolabs_sway_libs"

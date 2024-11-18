@@ -1,5 +1,5 @@
 [[package]]
-name = "compolabs-sway-libs"
+name = "compolabs_sway_libs"
 source = "member"
 dependencies = ["std"]
 
