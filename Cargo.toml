@@ -7,7 +7,7 @@ license = "Apache-2.0"
 description = "Composability Labs Sway / Rust Library"
 
 [dependencies]
-anyhow = "1.0.91"
+anyhow = "^1.0.86"
 tokio = { version = "1.41.0", features = ["rt", "macros"] }
 
 [[test]]
