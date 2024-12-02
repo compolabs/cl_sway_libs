@@ -528,6 +528,20 @@ fn test_i64_is_zero() {
 }
 
 #[test()]
+fn test_i64_underlying_positive() {
+    let shift = 1000u64;
+    let underlying = INDENT_I64 + shift;
+    assert(I64::from(shift).underlying() == underlying);
+}
+
+#[test()]
+fn test_i64_underlying_negative() {
+    let shift = 1000u64;
+    let underlying = INDENT_I64 - shift;
+    assert(I64::from(shift).reverse_sign().underlying() == underlying);
+}
+
+#[test()]
 fn test_i64_is_negative() {
     assert(I64::min().is_negative());
 }
